@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartFix Core - Frontend Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="data:application/json,{%22name%22:%22SmartFix%20Core%22,%22short_name%22:%22SmartFix%22,%22start_url%22:%22/%22,%22display%22:%22standalone%22,%22background_color%22:%22%230a0a0a%22,%22theme_color%22:%22%2300F5FF%22}">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>SmartFix Core</h1>
+                <p>Enterprise Android Patch Management</p>
+            </div>
+            <div class="login-form">
+                <div class="card glassmorphism">
+                    <div class="card__body">
+                        <h2>Logowanie</h2>
+                        <form id="login-form">
+                            <div class="form-group">
+                                <label class="form-label">Nazwa użytkownika</label>
+                                <select class="form-control" id="username-select" required>
+                                    <option value="">-- Wybierz użytkownika --</option>
+                                    <option value="admin">admin (Administrator)</option>
+                                    <option value="developer">developer (Developer)</option>
+                                    <option value="viewer">viewer (Przeglądający)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Hasło</label>
+                                <input type="password" class="form-control" id="password-input" value="demo123" required>
+                            </div>
+                            <button type="submit" class="btn btn--primary btn--full-width">
+                                <span class="btn-text">Zaloguj się</span>
+                                <span class="btn-loading hidden">Logowanie...</span>
+                            </button>
+                        </form>
+                        <div class="login-demo-info">
+                            <p><strong>Demo credentials:</strong></p>
+                            <p>admin/developer/viewer + hasło: demo123</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app" class="main-app hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <h2>SmartFix</h2>
+                    <span class="logo-subtitle">Core</span>
+                </div>
+                <button class="sidebar-toggle" id="sidebar-toggle">☰</button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-route="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="#queue" class="nav-item" data-route="queue">
+                    <span class="nav-icon">⏱️</span>
+                    <span class="nav-text">Monitor Kolejki</span>
+                </a>
+                <a href="#patches" class="nav-item" data-route="patches">
+                    <span class="nav-icon">📦</span>
+                    <span class="nav-text">Zarządzanie Patches</span>
+                </a>
+                <a href="#traces" class="nav-item" data-route="traces">
+                    <span class="nav-icon">🔍</span>
+                    <span class="nav-text">Trace Explorer</span>
+                </a>
+                <a href="#marketplace" class="nav-item" data-route="marketplace">
+                    <span class="nav-icon">🛒</span>
+                    <span class="nav-text">Plugin Marketplace</span>
+                </a>
+                <a href="#settings" class="nav-item" data-route="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Ustawienia</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="user-avatar"></div>
+                    <div class="user-details">
+                        <div class="user-name" id="user-name">Admin User</div>
+                        <div class="user-role" id="user-role">Administrator</div>
+                    </div>
+                </div>
+                <button class="btn btn--outline btn--sm" id="logout-btn">Wyloguj</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-left">
+                    <h1 id="page-title">Dashboard</h1>
+                    <div class="breadcrumb" id="breadcrumb">
+                        <span>SmartFix Core</span> / <span id="breadcrumb-current">Dashboard</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="connection-status" id="connection-status">
+                        <span class="status-dot status-dot--success"></span>
+                        <span>Połączenie aktywne</span>
+                    </div>
+                    <div class="theme-toggle">
+                        <button class="btn btn--outline btn--sm" id="theme-toggle">🌙</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="page active">
+                <div class="dashboard-grid">
+                    <!-- Live Metrics -->
+                    <div class="metrics-section">
+                        <h3>Metryki na żywo</h3>
+                        <div class="metrics-cards">
+                            <div class="metric-card glassmorphism">
+                                <div class="metric-header">
+                                    <span class="metric-title">Rozmiar kolejki</span>
+                                    <span class="metric-icon">📊</span>
+                                </div>
+                                <div class="metric-value" id="queue-size">7</div>
+                                <div class="metric-trend">+2 w ostatniej godzinie</div>
+                            </div>
+                            <div class="metric-card glassmorphism">
+                                <div class="metric-header">
+                                    <span class="metric-title">Wskaźnik sukcesu</span>
+                                    <span class="metric-icon">✅</span>
+                                </div>
+                                <div class="metric-value" id="success-rate">95.2%</div>
+                                <div class="metric-trend">+1.2% dzisiaj</div>
+                            </div>
+                            <div class="metric-card glassmorphism">
+                                <div class="metric-header">
+                                    <span class="metric-title">Średnia latencja</span>
+                                    <span class="metric-icon">⚡</span>
+                                </div>
+                                <div class="metric-value" id="avg-latency">145ms</div>
+                                <div class="metric-trend">-12ms od wczoraj</div>
+                            </div>
+                            <div class="metric-card glassmorphism">
+                                <div class="metric-header">
+                                    <span class="metric-title">Aktywni pracownicy</span>
+                                    <span class="metric-icon">👥</span>
+                                </div>
+                                <div class="metric-value" id="active-workers">3</div>
+                                <div class="metric-trend">3/5 online</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Queue Heatmap -->
+                    <div class="heatmap-section">
+                        <div class="card glassmorphism">
+                            <div class="card__body">
+                                <h3>Mapa cieplna kolejki</h3>
+                                <div class="queue-heatmap" id="queue-heatmap"></div>
+                                <div class="heatmap-legend">
+                                    <span class="legend-item">
+                                        <span class="legend-color" style="background: #00F5FF"></span>
+                                        Wysokie priority
+                                    </span>
+                                    <span class="legend-item">
+                                        <span class="legend-color" style="background: #FF3366"></span>
+                                        Średnie priority
+                                    </span>
+                                    <span class="legend-item">
+                                        <span class="legend-color" style="background: #FFFF00"></span>
+                                        Niskie priority
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="activity-section">
+                        <div class="card glassmorphism">
+                            <div class="card__body">
+                                <h3>Ostatnia aktywność</h3>
+                                <div class="activity-list" id="recent-activity">
+                                    <div class="activity-item">
+                                        <div class="activity-icon status--success">✓</div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">WhatsApp-v2.23.apk zakończony</div>
+                                            <div class="activity-time">2 minuty temu</div>
+                                        </div>
+                                    </div>
+                                    <div class="activity-item">
+                                        <div class="activity-icon status--warning">⏳</div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">Instagram-v295.apk rozpoczęty</div>
+                                            <div class="activity-time">5 minut temu</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Queue Monitor Page -->
+            <div id="queue-page" class="page">
+                <div class="queue-controls">
+                    <div class="controls-left">
+                        <button class="btn btn--secondary" id="refresh-queue">Odśwież</button>
+                        <div class="filter-group">
+                            <label class="form-label">Filtruj według statusu:</label>
+                            <select class="form-control" id="status-filter">
+                                <option value="">Wszystkie</option>
+                                <option value="processing">Przetwarzanie</option>
+                                <option value="queued">W kolejce</option>
+                                <option value="completed">Ukończone</option>
+                                <option value="failed">Nieudane</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="controls-right">
+                        <button class="btn btn--outline" id="export-queue">Eksportuj CSV</button>
+                    </div>
+                </div>
+
+                <div class="queue-table-container">
+                    <div class="card glassmorphism">
+                        <div class="card__body">
+                            <div class="queue-table" id="queue-table">
+                                <div class="table-header">
+                                    <div class="table-cell">ID Zadania</div>
+                                    <div class="table-cell">Nazwa pliku</div>
+                                    <div class="table-cell">Status</div>
+                                    <div class="table-cell">Postęp</div>
+                                    <div class="table-cell">Priority</div>
+                                    <div class="table-cell">ETA</div>
+                                    <div class="table-cell">Akcje</div>
+                                </div>
+                                <div class="table-body" id="queue-table-body">
+                                    <!-- Dynamic content -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patches Page -->
+            <div id="patches-page" class="page">
+                <div class="patches-header">
+                    <div class="upload-section">
+                        <div class="card glassmorphism">
+                            <div class="card__body">
+                                <h3>Upload patches</h3>
+                                <div class="upload-area" id="upload-area">
+                                    <div class="upload-content">
+                                        <div class="upload-icon">📁</div>
+                                        <p>Przeciągnij i upuść pliki APK/AAB tutaj</p>
+                                        <p class="upload-subtitle">lub <button class="btn btn--primary btn--sm" id="file-select-btn">wybierz pliki</button></p>
+                                        <input type="file" id="file-input" accept=".apk,.aab" multiple style="display: none;">
+                                    </div>
+                                </div>
+                                <div class="upload-progress hidden" id="upload-progress">
+                                    <div class="progress-item" id="upload-progress-item">
+                                        <div class="progress-info">
+                                            <span class="progress-filename"></span>
+                                            <span class="progress-percentage">0%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="patches-history">
+                    <div class="card glassmorphism">
+                        <div class="card__body">
+                            <h3>Historia patches</h3>
+                            <div class="patches-table" id="patches-table">
+                                <div class="table-header">
+                                    <div class="table-cell">Nazwa pliku</div>
+                                    <div class="table-cell">Status</div>
+                                    <div class="table-cell">Data uploadu</div>
+                                    <div class="table-cell">Rozmiar</div>
+                                    <div class="table-cell">Akcje</div>
+                                </div>
+                                <div class="table-body" id="patches-table-body">
+                                    <!-- Dynamic content -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Traces Page -->
+            <div id="traces-page" class="page">
+                <div class="traces-search">
+                    <div class="card glassmorphism">
+                        <div class="card__body">
+                            <h3>Wyszukaj traces</h3>
+                            <div class="search-form">
+                                <div class="form-group">
+                                    <label class="form-label">Trace ID</label>
+                                    <input type="text" class="form-control" id="trace-id-input" placeholder="Wprowadź ID trace">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Nazwa serwisu</label>
+                                    <input type="text" class="form-control" id="service-name-input" placeholder="np. patch-processor">
+                                </div>
+                                <button class="btn btn--primary" id="search-traces-btn">Szukaj</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="traces-results" id="traces-results">
+                    <div class="card glassmorphism">
+                        <div class="card__body">
+                            <h3>Wyniki wyszukiwania</h3>
+                            <div class="trace-visualization" id="trace-visualization">
+                                <p class="placeholder-text">Wprowadź kryteria wyszukiwania aby zobaczyć traces</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marketplace Page -->
+            <div id="marketplace-page" class="page">
+                <div class="marketplace-header">
+                    <div class="search-bar">
+                        <input type="text" class="form-control" id="plugin-search" placeholder="Szukaj pluginów...">
+                    </div>
+                    <div class="category-filter">
+                        <label class="form-label">Kategoria:</label>
+                        <select class="form-control" id="category-filter">
+                            <option value="">Wszystkie</option>
+                            <option value="Security">Bezpieczeństwo</option>
+                            <option value="Performance">Wydajność</option>
+                            <option value="UI">Interfejs</option>
+                            <option value="Analytics">Analityka</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="plugins-grid" id="plugins-grid">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings-page" class="page">
+                <div class="settings-sections">
+                    <div class="settings-nav">
+                        <div class="card glassmorphism">
+                            <div class="card__body">
+                                <h3>Kategorie</h3>
+                                <div class="settings-nav-items">
+                                    <button class="settings-nav-item active" data-section="profile">Profil</button>
+                                    <button class="settings-nav-item" data-section="api">API Configuration</button>
+                                    <button class="settings-nav-item" data-section="notifications">Powiadomienia</button>
+                                    <button class="settings-nav-item" data-section="security">Bezpieczeństwo</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-content">
+                        <!-- Profile Settings -->
+                        <div class="settings-section active" id="profile-settings">
+                            <div class="card glassmorphism">
+                                <div class="card__body">
+                                    <h3>Ustawienia profilu</h3>
+                                    <form class="settings-form">
+                                        <div class="form-group">
+                                            <label class="form-label">Nazwa użytkownika</label>
+                                            <input type="text" class="form-control" id="profile-username" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Rola</label>
+                                            <input type="text" class="form-control" id="profile-role" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Motyw</label>
+                                            <select class="form-control" id="theme-select">
+                                                <option value="auto">Automatyczny</option>
+                                                <option value="light">Jasny</option>
+                                                <option value="dark">Ciemny</option>
+                                            </select>
+                                        </div>
+                                        <button type="button" class="btn btn--primary" id="save-profile">Zapisz zmiany</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- API Settings -->
+                        <div class="settings-section" id="api-settings">
+                            <div class="card glassmorphism">
+                                <div class="card__body">
+                                    <h3>Konfiguracja API</h3>
+                                    <form class="settings-form">
+                                        <div class="form-group">
+                                            <label class="form-label">Backend API URL</label>
+                                            <input type="text" class="form-control" id="api-url" value="http://localhost:8000/api/v1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">WebSocket URL</label>
+                                            <input type="text" class="form-control" id="websocket-url" value="ws://localhost:8000/ws">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Timeout (sekundy)</label>
+                                            <input type="number" class="form-control" id="api-timeout" value="30">
+                                        </div>
+                                        <button type="button" class="btn btn--primary" id="save-api">Zapisz konfigurację</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications Settings -->
+                        <div class="settings-section" id="notifications-settings">
+                            <div class="card glassmorphism">
+                                <div class="card__body">
+                                    <h3>Ustawienia powiadomień</h3>
+                                    <form class="settings-form">
+                                        <div class="form-group">
+                                            <label class="checkbox-label">
+                                                <input type="checkbox" id="email-notifications" checked>
+                                                Powiadomienia email
+                                            </label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="checkbox-label">
+                                                <input type="checkbox" id="browser-notifications" checked>
+                                                Powiadomienia przeglądarki
+                                            </label>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="checkbox-label">
+                                                <input type="checkbox" id="slack-notifications">
+                                                Powiadomienia Slack
+                                            </label>
+                                        </div>
+                                        <button type="button" class="btn btn--primary" id="save-notifications">Zapisz ustawienia</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Settings -->
+                        <div class="settings-section" id="security-settings">
+                            <div class="card glassmorphism">
+                                <div class="card__body">
+                                    <h3>Ustawienia bezpieczeństwa</h3>
+                                    <form class="settings-form">
+                                        <div class="form-group">
+                                            <label class="form-label">Zmień hasło</label>
+                                            <input type="password" class="form-control" placeholder="Nowe hasło">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Potwierdź hasło</label>
+                                            <input type="password" class="form-control" placeholder="Potwierdź nowe hasło">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="checkbox-label">
+                                                <input type="checkbox" id="two-factor-auth">
+                                                Włącz uwierzytelnianie dwuskładnikowe
+                                            </label>
+                                        </div>
+                                        <button type="button" class="btn btn--primary" id="save-security">Zapisz zmiany</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notifications Container -->
+    <div class="notifications-container" id="notifications-container"></div>
+
+    <!-- Modals -->
+    <div class="modal-overlay hidden" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Modal Title</h3>
+                <button class="modal-close" id="modal-close">×</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <button class="btn btn--secondary" id="modal-cancel">Anuluj</button>
+                <button class="btn btn--primary" id="modal-confirm">Potwierdź</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

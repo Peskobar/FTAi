@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tui-patcher-agent
+  namespace: tui-patcher
+  labels:
+    app: tui-patcher-agent
+    version: v0.3.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tui-patcher-agent
+  template:
+    metadata:
+      labels:
+        app: tui-patcher-agent
+        version: v0.3.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: tui-patcher-agent
+        image: ghcr.io/tui-patcher/tui-patcher-agent:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: SERVER_HOST
+          value: "0.0.0.0"
+        - name: SERVER_PORT
+          value: "8080"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector:4317"
+        - name: OTEL_SERVICE_NAME
+          value: "tui-patcher-agent"
+        - name: SLACK_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: tui-patcher-secrets
+              key: slack-webhook-url
+        - name: PPX_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: tui-patcher-secrets
+              key: perplexity-api-key
+        - name: PPX_API_KEY_CI
+          valueFrom:
+            secretKeyRef:
+              name: tui-patcher-secrets
+              key: perplexity-api-key-ci
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+        - name: temp-storage
+          mountPath: /tmp
+        - name: sbom-volume
+          mountPath: /app/sbom
+          readOnly: true
+      volumes:
+      - name: temp-storage
+        emptyDir: {}
+      - name: sbom-volume
+        configMap:
+          name: sbom-config
+          optional: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tui-patcher-agent
+  namespace: tui-patcher
+  labels:
+    app: tui-patcher-agent
+spec:
+  selector:
+    app: tui-patcher-agent
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tui-patcher-secrets
+  namespace: tui-patcher
+type: Opaque
+stringData:
+  slack-webhook-url: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+  perplexity-api-key: "pplx-your-production-key"
+  perplexity-api-key-ci: "pplx-your-ci-key"
