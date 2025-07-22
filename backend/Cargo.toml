@@ -1,0 +1,83 @@
+[package]
+name = "tui-patcher-agent"
+version = "0.3.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "AI-powered Android patching service"
+repository = "https://github.com/tui-patcher/tui-patcher-agent"
+
+[dependencies]
+# Core Web Framework
+axum = { version = "0.7", features = ["macros", "ws"] }
+tokio = { version = "1.35", features = ["full"] }
+tower = { version = "0.4", features = ["full"] }
+tower-http = { version = "0.5", features = ["trace", "request-id", "timeout"] }
+
+# OpenTelemetry Stack (Q3 2025 Sprint)
+opentelemetry = { version = "0.23", features = ["rt-tokio"] }
+opentelemetry-otlp = { version = "0.13", features = ["grpc-tonic"] }
+tracing-opentelemetry = "0.23"
+opentelemetry-semantic-conventions = "0.16"
+axum-otel = { version = "0.2", features = ["trace"] }
+
+# Tracing & Observability
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "registry"] }
+
+# HTTP Client & Async
+reqwest = { version = "0.11", features = ["json", "rustls-tls"] }
+hyper = { version = "1.0", features = ["full"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# UUID & Time
+uuid = { version = "1.6", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+# Slack Notifications (Q3 2025 Sprint)
+webhook = { version = "0.8", features = ["json"] }
+slack-hook = "0.10"
+
+# Circuit Breaker Pattern
+circuitbreaker-rs = "0.1"
+
+# SBOM Generation (Q3 2025 Sprint)
+cyclonedx-bom = "0.5"
+
+# Perplexity AI Integration (Dual-key)
+perplexity = "0.2"
+
+# Machine Learning (Future Q4 2025)
+tflite = { version = "0.9", optional = true }
+
+# WASM Runtime (Future H1 2026)
+wasmtime = { version = "15.0", optional = true }
+
+# Error Handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Async Runtime
+futures = "0.3"
+
+[dev-dependencies]
+tower-test = "0.4"
+
+[features]
+default = ["otel-integration"]
+otel-integration = []
+tflite-ai = ["tflite"]
+wasm-plugins = ["wasmtime"]
+edge-runtime = []
+
+[[bin]]
+name = "tui-patcher-agent"
+path = "src/main.rs"
+
+[[bin]]
+name = "tui-patcher-edge"
+path = "src/edge/main.rs"
+required-features = ["edge-runtime"]

@@ -1,0 +1,43 @@
+# TUI-Patcher-Agent Configuration
+
+[server]
+host = "127.0.0.1"
+port = 8080
+workers = 4
+
+[telemetry]
+otel_endpoint = "http://localhost:4317"
+service_name = "tui-patcher-agent"
+sampling_ratio = 0.1
+export_timeout_secs = 30
+
+[auth]
+require_api_key = false
+api_keys = []
+
+[rate_limit]
+requests_per_minute = 100
+burst_size = 20
+
+[queue]
+max_concurrent_jobs = 5
+job_timeout_secs = 300
+cleanup_interval_secs = 3600
+
+[patch]
+temp_dir = "/tmp/tui-patcher"
+max_file_size_mb = 100
+timeout_secs = 180
+
+[alerts]
+enabled = true
+slack_webhook_url = ""  # Set via environment variable
+queue_size_threshold = 10
+success_rate_threshold = 0.95
+latency_threshold_ms = 2000
+
+[ai]
+perplexity_api_key = ""  # Set via environment variable
+perplexity_api_key_ci = ""  # Set via environment variable
+enable_on_device = false
+model_path = ""
