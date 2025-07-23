@@ -1,8 +1,8 @@
 //! Configuration management for TUI-Patcher-Agent
 
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use anyhow::Result;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Config {
