@@ -45,4 +45,4 @@ export PPX_API_KEY_CI="your-perplexity-ci-key"
 See detailed breakdown in ARCHITECTURE.md
 
 ## License
-Apache 2.0 - See LICENSE file
+Apache 2.0 - see [../LICENSE](../LICENSE) for details
