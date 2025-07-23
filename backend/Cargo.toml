@@ -77,7 +77,3 @@ edge-runtime = []
 name = "tui-patcher-agent"
 path = "src/main.rs"
 
-[[bin]]
-name = "tui-patcher-edge"
-path = "src/edge/main.rs"
-required-features = ["edge-runtime"]
